@@ -42,4 +42,3 @@ app.MapDefaultEndpoints();
 
 app.Run();
 
-// Test branch rules
