@@ -8,22 +8,15 @@ import { endpoints } from '@/services/api-endpoints'
 import { Order } from '@/types/order'
 import { Product } from '@/types/product'
 
-async function getDashboardData() {
-  const [orders, products] = await Promise.all([
-    api.get<Order[]>(endpoints.orders.list),
-    api.get<Product[]>(endpoints.products.list),
-  ])
 
-  return { orders, products }
-}
+
 
 export default async function DashboardPage() {
-  const { orders, products } = await getDashboardData()
   
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
       <Suspense fallback={<LoadingFallback />}>
-        <Dashboard orders={orders} products={products} />
+        <Dashboard/>
       </Suspense>
     </ErrorBoundary>
   )

@@ -7,7 +7,7 @@ export default function Home() {
       <p className="text-lg text-gray-600 mb-8">Manage your products, orders, and users in one place</p>
       <Link 
         href="/dashboard" 
-        className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+        className="px-6 py-3 bg-purple-500 text-white rounded-lg hover:bg-purple-700 transition-colors"
       >
         Go to Dashboard
       </Link>
