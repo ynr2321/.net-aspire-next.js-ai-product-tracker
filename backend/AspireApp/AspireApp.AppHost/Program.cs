@@ -7,17 +7,25 @@
 using Projects;
 
 var builder = DistributedApplication.CreateBuilder(args);
-var apiService = builder.AddProject<AspireApp_ApiService>("apiservice");
 
-// Add Next.js app
+// Add PostgreSQL database container resource with a database named "aspireapp" and configure a db client with pg admin
+var postgres = builder.AddPostgres("postgres-db-container")
+    .WithPgAdmin(pgBuilder =>
+    {
+        pgBuilder.WithHostPort(5050); // TODO Yusef move to appsettings
+    });
+
+postgres.AddDatabase("aspireapp");
+
+// add api service resource
+var apiService = builder.AddProject<AspireApp_ApiService>("apiservice")
+    .WithReference(postgres);
+
+// Add Next.js app resource
 builder.AddJavaScriptApp("frontend", "../../../frontend", "dev")
        .WithHttpEndpoint(env: "PORT")
        .WithExternalHttpEndpoints()
        .WithReference(apiService);
-
-
-// Add postgreSQL database container
-builder.AddPostgres("postgres-db-container");
 
 builder.Build().Run();
 
