@@ -1,12 +1,23 @@
-var builder = DistributedApplication.CreateBuilder(args);
+/* 
+ * This file is the entry point of the application.
+ * It sets up the distributed application using the Dapr framework, adding an API service and a Next.js frontend application. 
+ * The API service is defined in the Projects.AspireApp_ApiService project, while the Next.js app is located in the ../../../frontend directory.
+ * The frontend app is configured to run in development mode and is set up to use HTTP endpoints, with references to the API service for communication.
+ */
+using Projects;
 
-var apiService = builder.AddProject<Projects.AspireApp_ApiService>("apiservice");
+var builder = DistributedApplication.CreateBuilder(args);
+var apiService = builder.AddProject<AspireApp_ApiService>("apiservice");
 
 // Add Next.js app
-builder.AddNpmApp("frontend", "../../../frontend", "dev")
-    .WithHttpEndpoint(env: "PORT")
-    .WithExternalHttpEndpoints()
-    .WithReference(apiService);
+builder.AddJavaScriptApp("frontend", "../../../frontend", "dev")
+       .WithHttpEndpoint(env: "PORT")
+       .WithExternalHttpEndpoints()
+       .WithReference(apiService);
+
+
+// Add postgreSQL database container
+builder.AddPostgres("postgres-db-container");
 
 builder.Build().Run();
 
