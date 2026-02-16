@@ -15,11 +15,11 @@ var postgres = builder.AddPostgres("postgres-db-container")
         pgBuilder.WithHostPort(5050); // TODO Yusef move to appsettings
     });
 
-postgres.AddDatabase("aspireapp");
+var database = postgres.AddDatabase("aspireapp");
 
 // add api service resource
 var apiService = builder.AddProject<AspireApp_ApiService>("apiservice")
-    .WithReference(postgres);
+    .WithReference(database);
 
 // Add Next.js app resource
 builder.AddJavaScriptApp("frontend", "../../../frontend", "dev")
