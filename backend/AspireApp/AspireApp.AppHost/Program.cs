@@ -9,11 +9,12 @@ using Projects;
 var builder = DistributedApplication.CreateBuilder(args);
 
 // Add PostgreSQL database container resource with a database named "aspireapp" and configure a db client with pg admin
-var postgres = builder.AddPostgres("postgres-db-container")
+var postgres = builder.AddPostgres("postgres-server-container")
     .WithPgAdmin(pgBuilder =>
     {
         pgBuilder.WithHostPort(5050); // TODO Yusef move to appsettings
     });
+    // TODO Yusef add a volume for this contianer
 
 var database = postgres.AddDatabase("aspireapp");
 
