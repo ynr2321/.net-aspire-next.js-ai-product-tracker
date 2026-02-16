@@ -1,3 +1,4 @@
+using AspireApp.ApiService.Data;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AspireApp.ApiService.Controllers;
@@ -6,8 +7,11 @@ namespace AspireApp.ApiService.Controllers;
 [Route("api/[controller]")]
 public class HealthCheckController : ControllerBase
 {
-    public HealthCheckController()
+    private readonly ApplicationDbContext _db;
+
+    public HealthCheckController(ApplicationDbContext db)
     {
+        _db = db; // TODO Yusef - later considering implementing repository pattern for better separation of concerns
     }
 
     [HttpGet]
