@@ -20,7 +20,7 @@ public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<Applicatio
          * Ensure the API is not running during migrations.
          */
         optionsBuilder.UseNpgsql(
-            "Host=localhost;Port=50723;Username=postgres;Password=d)x3X6w57DdthED*zqdwhF;Database=aspireapp");
+            "Placeholder");
 
         return new ApplicationDbContext(optionsBuilder.Options);
     }
