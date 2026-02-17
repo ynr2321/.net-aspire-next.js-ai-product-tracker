@@ -1,3 +1,5 @@
+using AspireApp.ApiService.Application.ApiHealthLogs;
+using AspireApp.ApiService.Application.ApiHealthLogs.Models;
 using AspireApp.ApiService.Data;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,16 +9,18 @@ namespace AspireApp.ApiService.Controllers;
 [Route("api/[controller]")]
 public class HealthCheckController : ControllerBase
 {
-    private readonly ApplicationDbContext _db;
+    private readonly IApiHealthLogService _healthLogService;
 
-    public HealthCheckController(ApplicationDbContext db)
+    public HealthCheckController(IApiHealthLogService service)
     {
-        _db = db; // TODO Yusef - later considering implementing repository pattern for better separation of concerns
+        _healthLogService = service;
     }
 
     [HttpGet]
-    public IActionResult GetHealthStatus()
+    public async Task<IActionResult> GetHealthStatus(CancellationToken ct)
     {
-        return Ok(new { status = "running" });
+        ApiHealthLogDto healthLog = await _healthLogService.LogHealthAsync(ct);
+
+        return Ok(healthLog);
     }
 }

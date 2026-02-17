@@ -2,7 +2,7 @@
 {
     public enum ConnectionStatus
     {
-        Connected,
-        NotConnected
+        CanConnect,
+        CannotConnect
     }
 }

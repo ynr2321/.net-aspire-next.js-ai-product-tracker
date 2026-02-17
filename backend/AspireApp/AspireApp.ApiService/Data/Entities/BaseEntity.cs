@@ -6,6 +6,6 @@ public class BaseEntity : IHaveId, IHaveCreatedAtTimeStamp
 {
     public Guid Id { get; set; }
 
-    public DateTime CreatedAt { get; private set; }
+    public DateTime CreatedAt { get; init; }
 }
 

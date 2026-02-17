@@ -28,7 +28,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="Application\Models\" />
 	  <Folder Include="Migrations\" />
 	</ItemGroup>
 

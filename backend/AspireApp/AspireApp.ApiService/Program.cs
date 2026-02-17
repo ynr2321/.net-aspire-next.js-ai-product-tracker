@@ -1,3 +1,4 @@
+using AspireApp.ApiService.Application.ApiHealthLogs;
 using AspireApp.ApiService.Data;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,6 +14,9 @@ builder.Services.AddProblemDetails();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// Repositories
+builder.Services.AddScoped<IApiHealthLogService, ApiHealthLogService>();
 
 // Add CORS
 builder.Services.AddCors(options =>
@@ -34,7 +38,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-//app.UseHttpsRedirection();
 app.UseCors(); // Enable CORS
 app.UseAuthorization();
 app.MapControllers();
