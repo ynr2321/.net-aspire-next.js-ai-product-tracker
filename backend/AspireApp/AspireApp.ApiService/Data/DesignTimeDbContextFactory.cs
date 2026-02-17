@@ -19,8 +19,7 @@ public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<Applicatio
          * paste connection string here - aspire dashboard --> aspireapp --> connection string
          * Ensure the API is not running during migrations.
          */
-        optionsBuilder.UseNpgsql(
-            "Placeholder");
+        optionsBuilder.UseNpgsql("PLACEHOLDER");
 
         return new ApplicationDbContext(optionsBuilder.Options);
     }
