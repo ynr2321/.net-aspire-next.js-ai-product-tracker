@@ -28,7 +28,7 @@ WIP distributed app built with **.NET Aspire**:
 5. Configure the database connection:
    - In the Aspire Dashboard, select the **Postgres container resource**.
    - Copy the connection string.
-   - Paste it into the `DbContextFactory` connection configuration.
+   - Paste it into the `DesignTimeDbContextFactory` connection configuration.
 
 6. Create and initialize the database (run once):
 
