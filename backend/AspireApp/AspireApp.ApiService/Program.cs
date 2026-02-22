@@ -1,5 +1,6 @@
 using AspireApp.ApiService.Application.ApiHealthLogs;
 using AspireApp.ApiService.Data;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,8 +13,7 @@ builder.AddNpgsqlDbContext<ApplicationDbContext>("aspireapp");
 // Add services to the container.
 builder.Services.AddProblemDetails();
 builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddOpenApi();
 
 // Repositories
 builder.Services.AddScoped<IApiHealthLogService, ApiHealthLogService>();
@@ -34,8 +34,8 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.MapOpenApi();
+    app.MapScalarApiReference();
 }
 
 app.UseCors(); // Enable CORS
