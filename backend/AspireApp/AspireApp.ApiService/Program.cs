@@ -31,7 +31,7 @@ builder.Services.AddIdentityCore<ApplicationUser>(options =>
 .AddDefaultTokenProviders();
 
 // Add JWT Authentication
-// TODO: For production, move the JWT key to environment variables or a secret manager (e.g., Azure Key Vault / Aspire secrets).
+// JWT signing key is injected by Aspire AppHost via the "jwt-key" secret parameter (Jwt__Key env var).
 var jwtSettings = builder.Configuration.GetSection("Jwt");
 var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]!);
 
