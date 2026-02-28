@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.Build.NoTargets/3.7.56">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <!-- Prevent any .NET build/restore from running -->
+    <BuildDependsOn />
+    <CompileDependsOn />
+    <ResolveReferencesDependsOn />
+    <!-- Show all files in Solution Explorer by default -->
+    <EnableDefaultItems>false</EnableDefaultItems>
+    <EnableDefaultNoneItems>false</EnableDefaultNoneItems>
+  </PropertyGroup>
+
+  <!-- Include all files for visibility in Solution Explorer, excluding heavy/generated folders -->
+  <ItemGroup>
+    <None Include="**\*"
+          Exclude="node_modules\**;.next\**;bin\**;obj\**"
+          LinkBase="" />
+  </ItemGroup>
+
+</Project>
