@@ -17,19 +17,20 @@ public class AuthService : IAuthService
 
     public async Task<AuthResult> RegisterAsync(string email, string password)
     {
+        // check if user already exists
         ApplicationUser? existingUser = await _userManager.FindByEmailAsync(email);
-        if (existingUser is not null)
-            return AuthResult.Conflict("A user with this email already exists.");
 
+        if (existingUser is not null) return AuthResult.Conflict("A user with this email already exists.");
+
+        // create new user and add role
         var user = new ApplicationUser
         {
             UserName = email,
             Email = email
         };
-
         IdentityResult result = await _userManager.CreateAsync(user, password);
-        if (!result.Succeeded)
-            return AuthResult.ValidationError(result.Errors.Select(e => e.Description));
+
+        if (!result.Succeeded) return AuthResult.ValidationError(result.Errors.Select(e => e.Description));
 
         await _userManager.AddToRoleAsync(user, "User");
 
@@ -38,12 +39,16 @@ public class AuthService : IAuthService
 
     public async Task<AuthResult<LoginResponse>> LoginAsync(string email, string password)
     {
-        var user = await _userManager.FindByEmailAsync(email);
+        ApplicationUser? user = await _userManager.FindByEmailAsync(email);
+        // incorrect username or password
         if (user is null || !await _userManager.CheckPasswordAsync(user, password))
+        {
             return AuthResult<LoginResponse>.Unauthorized("Invalid email or password.");
+        }
 
-        var roles = await _userManager.GetRolesAsync(user);
-        var token = _jwtTokenService.GenerateToken(user, roles);
+        // if credentials correct, generate new token with correct roles
+        IList<string> roles = await _userManager.GetRolesAsync(user);
+        string token = _jwtTokenService.GenerateToken(user, roles);
 
         return AuthResult<LoginResponse>.Success(new LoginResponse
         {
