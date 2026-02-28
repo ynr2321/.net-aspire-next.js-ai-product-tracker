@@ -4,6 +4,7 @@ using AspireApp.ApiService.Data;
 using AspireApp.ApiService.Data.Entities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using Scalar.AspNetCore;
@@ -105,9 +106,12 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Seed roles on startup
+// auto apply pending EF Core migrations and seed roles on startup
 using (var scope = app.Services.CreateScope())
 {
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    await db.Database.MigrateAsync();
+
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
     string[] roles = ["Admin", "User"];
     foreach (var role in roles)
