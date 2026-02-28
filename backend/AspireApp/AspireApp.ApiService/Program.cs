@@ -1,5 +1,6 @@
 using System.Text;
 using AspireApp.ApiService.Application.ApiHealthLogs;
+using AspireApp.ApiService.Application.Auth;
 using AspireApp.ApiService.Data;
 using AspireApp.ApiService.Data.Entities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -90,8 +91,10 @@ builder.Services.AddOpenApi(options =>
     });
 });
 
-// Repositories
+// Services
 builder.Services.AddScoped<IApiHealthLogService, ApiHealthLogService>();
+builder.Services.AddSingleton<IJwtTokenService, JwtTokenService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 // Add CORS
 builder.Services.AddCors(options =>
@@ -109,6 +112,8 @@ var app = builder.Build();
 // auto apply pending EF Core migrations and seed roles on startup
 using (var scope = app.Services.CreateScope())
 {
+    // Wait until postgres db container is running before auto migration -- TODO clean this up consider better waiting system / retry system
+    await Task.Delay(millisecondsDelay: 10_000);
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     await db.Database.MigrateAsync();
 
