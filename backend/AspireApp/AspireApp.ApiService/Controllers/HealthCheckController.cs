@@ -1,12 +1,14 @@
 using AspireApp.ApiService.Application.ApiHealthLogs;
 using AspireApp.ApiService.Application.ApiHealthLogs.Models;
 using AspireApp.ApiService.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AspireApp.ApiService.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class HealthCheckController : ControllerBase
 {
     private readonly IApiHealthLogService _healthLogService;

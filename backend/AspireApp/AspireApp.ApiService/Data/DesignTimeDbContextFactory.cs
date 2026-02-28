@@ -19,7 +19,7 @@ public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<Applicatio
          * paste connection string here - aspire dashboard --> aspireapp --> connection string
          * Ensure the API is not running during migrations.
          */
-        optionsBuilder.UseNpgsql("PLACEHOLDER");
+        optionsBuilder.UseNpgsql("Host=localhost;Port=62350;Username=postgres;Password=d)x3X6w57DdthED*zqdwhF;Database=aspireapp");
 
         return new ApplicationDbContext(optionsBuilder.Options);
     }
