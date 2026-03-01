@@ -3,8 +3,11 @@ import Link from "next/link";
 import ThemeChanger from "./DarkSwitch";
 import Image from "next/image"
 import { Disclosure } from "@headlessui/react";
+import { useAuth } from "@/services/auth";
 
 export const Navbar = () => {
+  const { user, logout, isAuthenticated } = useAuth();
+
   const navigation = [
     "Product",
     "Features",
@@ -32,16 +35,34 @@ export const Navbar = () => {
           </span>
         </Link>
 
-        {/* get started  */}
+        {/* Auth actions */}
         <div className="gap-3 nav__item mr-2 lg:flex ml-auto lg:ml-0 lg:order-2">
             <ThemeChanger />
-            <div className="hidden mr-3 lg:flex nav__item">
-              <Link href="/" className="px-6 py-2 text-white bg-indigo-600 rounded-md md:ml-5">
-                Get Started
-              </Link>
+            <div className="hidden mr-3 lg:flex nav__item items-center">
+              {isAuthenticated ? (
+                <>
+                  <span className="px-3 py-2 text-sm text-gray-500 dark:text-gray-300">
+                    {user?.email}
+                  </span>
+                  <button
+                    onClick={logout}
+                    className="px-6 py-2 text-white bg-indigo-600 rounded-md md:ml-5">
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link href="/login" className="px-4 py-2 text-lg font-normal text-gray-800 no-underline rounded-md dark:text-gray-200 hover:text-indigo-500 focus:text-indigo-500 focus:bg-indigo-100 focus:outline-none dark:focus:bg-gray-800">
+                    Login
+                  </Link>
+                  <Link href="/register" className="px-6 py-2 text-white bg-indigo-600 rounded-md md:ml-5">
+                    Register
+                  </Link>
+                </>
+              )}
             </div>
         </div>
-                
+
         <Disclosure>
           {({ open }) => (
             <>
@@ -75,9 +96,27 @@ export const Navbar = () => {
                           {item}
                       </Link>
                     ))}
-                    <Link href="/" className="w-full px-6 py-2 mt-3 text-center text-white bg-indigo-600 rounded-md lg:ml-5">         
-                        Get Started
-                    </Link>
+                    {isAuthenticated ? (
+                      <>
+                        <span className="w-full px-4 py-2 -ml-4 text-sm text-gray-500 dark:text-gray-300">
+                          {user?.email}
+                        </span>
+                        <button
+                          onClick={logout}
+                          className="w-full px-6 py-2 mt-3 text-center text-white bg-indigo-600 rounded-md lg:ml-5">
+                          Logout
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <Link href="/login" className="w-full px-4 py-2 -ml-4 text-gray-500 rounded-md dark:text-gray-300 hover:text-indigo-500 focus:text-indigo-500 focus:bg-indigo-100 dark:focus:bg-gray-800 focus:outline-none">
+                          Login
+                        </Link>
+                        <Link href="/register" className="w-full px-6 py-2 mt-3 text-center text-white bg-indigo-600 rounded-md lg:ml-5">
+                          Register
+                        </Link>
+                      </>
+                    )}
                   </>
                 </Disclosure.Panel>
             </>
