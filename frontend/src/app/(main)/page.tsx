@@ -1,57 +1,44 @@
 import { Container } from "@/components/ui/Container";
-import { Hero } from "@/components/ui/Hero";
 import { SectionTitle } from "@/components/ui/SectionTitle";
-import { Benefits } from "@/components/ui/Benefits";
-import { Video } from "@/components/ui/Video";
-import { Testimonials } from "@/components/ui/Testimonials";
-import { Faq } from "@/components/ui/Faq";
-import { benefitOne, benefitTwo } from "@/components/ui/data";
-import { Cta } from "@/components/ui/Cta";
 
 export default function Home() {
   return (
     <Container>
-      <Hero />
-      <SectionTitle
-        preTitle="Nextly Benefits"
-        title=" Why should you use this landing page"
-      >
-        Nextly is a free landing page & marketing website template for startups
-        and indie projects. Its built with Next.js & TailwindCSS. And its
-        completely open-source.
+      <Container className="flex flex-wrap">
+        <div className="flex items-center w-full lg:w-2/3 mx-auto">
+          <div className="max-w-2xl mb-8 mx-auto text-center">
+            <h1 className="text-4xl font-bold leading-snug tracking-tight text-gray-800 lg:text-4xl lg:leading-tight xl:text-6xl xl:leading-tight dark:text-white">
+              AI-Powered Product Tracker
+            </h1>
+            <p className="py-5 text-xl leading-normal text-gray-500 lg:text-xl xl:text-2xl dark:text-gray-300">
+              Describe a product, and let AI search the web, compare your
+              options, and lay them out side by side.
+            </p>
+          </div>
+        </div>
+      </Container>
+
+      <SectionTitle preTitle="How it works" title="Three steps to smarter comparisons">
+        Tell us what you&apos;re looking for. Our AI handles the rest.
       </SectionTitle>
 
-      <Benefits data={benefitOne} />
-      <Benefits imgPos="right" data={benefitTwo} />
-
-      <SectionTitle
-        preTitle="Watch a video"
-        title="Learn how to fullfil your needs"
-      >
-        This section is to highlight a promo or demo video of your product.
-        Analysts says a landing page with video has 3% more conversion rate. So,
-        don&apos;t forget to add one. Just like this.
-      </SectionTitle>
-
-      <Video videoId="fZ0D0cnR88E" />
-
-      <SectionTitle
-        preTitle="Testimonials"
-        title="Here's what our customers said"
-      >
-        Testimonials is a great way to increase the brand trust and awareness.
-        Use this section to highlight your popular customers.
-      </SectionTitle>
-
-      <Testimonials />
-
-      <SectionTitle preTitle="FAQ" title="Frequently Asked Questions">
-        Answer your customers possible questions here, it will increase the
-        conversion rate as well as support or chat requests.
-      </SectionTitle>
-
-      <Faq />
-      <Cta />
+      <Container className="flex flex-wrap gap-8 justify-center mt-4 mb-12">
+        <Step number={1} title="Describe" description="Enter a plain-language description of the product you need." />
+        <Step number={2} title="Search" description="AI scans the web and gathers matching products with specs and pricing." />
+        <Step number={3} title="Compare" description="Review a structured comparison table and pick the best fit." />
+      </Container>
     </Container>
+  );
+}
+
+function Step({ number, title, description }: { number: number; title: string; description: string }) {
+  return (
+    <div className="flex flex-col items-center w-full sm:w-64 text-center">
+      <div className="flex items-center justify-center w-12 h-12 mb-4 text-lg font-bold text-white bg-indigo-600 rounded-full">
+        {number}
+      </div>
+      <h3 className="text-xl font-semibold text-gray-800 dark:text-white">{title}</h3>
+      <p className="mt-2 text-gray-500 dark:text-gray-300">{description}</p>
+    </div>
   );
 }
