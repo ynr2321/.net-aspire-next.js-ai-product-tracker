@@ -19,7 +19,7 @@ export function Footer() {
               width={24}
               height={24}
             />
-            <span>Contact the Developer</span>
+            <span>Contact the Lead Developer</span>
           </a>
           <a
             href="https://github.com/ynr2321/.net-aspire-next.js-ai-product-tracker"

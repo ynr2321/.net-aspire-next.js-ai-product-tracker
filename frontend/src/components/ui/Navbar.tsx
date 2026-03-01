@@ -26,12 +26,12 @@ export const Navbar = () => {
                 <Image
                   src="/img/logo.png"
                   width="32"
-                  alt="ProductTracker"
+                  alt="Colloidal"
                   height="32"
-                  className="w-8"
+                  className="w-12"
                 />
               </span>
-            <span>ProductTracker</span>
+            <span>Colloidal</span>
           </span>
         </Link>
 
