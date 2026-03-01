@@ -8,8 +8,16 @@ using Projects;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
+// JWT signing key — stored in AppHost user secrets under "Parameters:jwt-key"
+var jwtKey = builder.AddParameter("jwt-key", secret: true);
+
+// Stable Postgres password — stored in AppHost user secrets under "Parameters:postgres-password"
+var postgresPassword = builder.AddParameter("postgres-password", secret: true);
+
 // Add PostgreSQL database container resource with a database named "aspireapp" and configure a db client with pg admin
 var postgres = builder.AddPostgres("postgres-server-container")
+    .WithPassword(postgresPassword)
+    .WithHostPort(5432)
     .WithVolume("postgres-data", "/var/lib/postgresql/data")
     .WithPgAdmin(pgBuilder =>
     {
@@ -20,7 +28,8 @@ var database = postgres.AddDatabase("aspireapp");
 
 // add api service resource
 var apiService = builder.AddProject<AspireApp_ApiService>("apiservice")
-    .WithReference(database);
+    .WithReference(database)
+    .WithEnvironment("Jwt__Key", jwtKey);
 
 // Add Next.js app resource
 builder.AddJavaScriptApp("frontend", "../../../frontend", "dev")

@@ -2,13 +2,54 @@ import { config } from './config'
 
 const API_URL = config.apiUrl
 
+function getAuthHeaders(): Record<string, string> {
+  if (typeof window === 'undefined') return {}
+  try {
+    const raw = localStorage.getItem('auth')
+    if (raw) {
+      const auth = JSON.parse(raw)
+      if (auth?.token) {
+        return { Authorization: `Bearer ${auth.token}` }
+      }
+    }
+  } catch {
+    // ignore parse errors
+  }
+  return {}
+}
+
+function handleUnauthorized(response: Response): void {
+  if (response.status === 401 && typeof window !== 'undefined') {
+    localStorage.removeItem('auth')
+    document.cookie = 'has_auth=; path=/; max-age=0'
+    window.location.href = '/login'
+  }
+}
+
+export class ApiError extends Error {
+  status: number
+  data: any
+
+  constructor(status: number, data: any) {
+    super(data?.message || `API error: ${status}`)
+    this.status = status
+    this.data = data
+  }
+}
+
 export const api = {
   async get<T>(endpoint: string): Promise<T> {
     const url = `${API_URL}${endpoint}`
     console.log(`[API] GET ${url}`)
-    const response = await fetch(url)
+    const response = await fetch(url, {
+      headers: {
+        ...getAuthHeaders(),
+      },
+    })
     if (!response.ok) {
-      throw new Error(`API error: ${response.statusText}`)
+      handleUnauthorized(response)
+      const data = await response.json().catch(() => ({}))
+      throw new ApiError(response.status, data)
     }
     return response.json()
   },
@@ -20,11 +61,14 @@ export const api = {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        ...getAuthHeaders(),
       },
       body: JSON.stringify(data),
     })
     if (!response.ok) {
-      throw new Error(`API error: ${response.statusText}`)
+      handleUnauthorized(response)
+      const errorData = await response.json().catch(() => ({}))
+      throw new ApiError(response.status, errorData)
     }
     return response.json()
   },
@@ -36,11 +80,14 @@ export const api = {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
+        ...getAuthHeaders(),
       },
       body: JSON.stringify(data),
     })
     if (!response.ok) {
-      throw new Error(`API error: ${response.statusText}`)
+      handleUnauthorized(response)
+      const errorData = await response.json().catch(() => ({}))
+      throw new ApiError(response.status, errorData)
     }
     return response.json()
   },
@@ -50,9 +97,14 @@ export const api = {
     console.log(`[API] DELETE ${url}`)
     const response = await fetch(url, {
       method: 'DELETE',
+      headers: {
+        ...getAuthHeaders(),
+      },
     })
     if (!response.ok) {
-      throw new Error(`API error: ${response.statusText}`)
+      handleUnauthorized(response)
+      const errorData = await response.json().catch(() => ({}))
+      throw new ApiError(response.status, errorData)
     }
     return response.json()
   },
