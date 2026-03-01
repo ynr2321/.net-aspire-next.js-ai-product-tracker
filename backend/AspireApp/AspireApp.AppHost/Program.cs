@@ -33,7 +33,7 @@ var apiService = builder.AddProject<AspireApp_ApiService>("apiservice")
 
 // Add Next.js app resource
 builder.AddJavaScriptApp("frontend", "../../../frontend", "dev")
-       .WithHttpEndpoint(env: "PORT")
+       .WithHttpEndpoint(port: 3000, env: "Frontend_PORT")
        .WithExternalHttpEndpoints()
        .WithReference(apiService);
 
