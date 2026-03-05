@@ -2,7 +2,7 @@
 import Link from "next/link";
 import ThemeChanger from "./DarkSwitch";
 import Image from "next/image"
-import { Disclosure } from "@headlessui/react";
+import { Disclosure, DisclosureButton, DisclosurePanel } from "@headlessui/react";
 import { useAuth } from "@/services/auth";
 
 export const Navbar = () => {
@@ -66,7 +66,7 @@ export const Navbar = () => {
         <Disclosure>
           {({ open }) => (
             <>
-                <Disclosure.Button
+                <DisclosureButton
                   aria-label="Toggle Menu"
                   className="px-2 py-1 text-gray-500 rounded-md lg:hidden hover:text-indigo-500 focus:text-indigo-500 focus:bg-indigo-100 focus:outline-none dark:text-gray-300 dark:focus:bg-trueGray-700">
                   <svg
@@ -87,9 +87,9 @@ export const Navbar = () => {
                       />
                     )}
                   </svg>
-                </Disclosure.Button>
+                </DisclosureButton>
 
-                <Disclosure.Panel className="flex flex-wrap w-full my-5 lg:hidden">
+                <DisclosurePanel className="flex flex-wrap w-full my-5 lg:hidden">
                   <>
                     {navigation.map((item, index) => (
                       <Link key={index} href="/" className="w-full px-4 py-2 -ml-4 text-gray-500 rounded-md dark:text-gray-300 hover:text-indigo-500 focus:text-indigo-500 focus:bg-indigo-100 dark:focus:bg-gray-800 focus:outline-none">
@@ -118,7 +118,7 @@ export const Navbar = () => {
                       </>
                     )}
                   </>
-                </Disclosure.Panel>
+                </DisclosurePanel>
             </>
           )}
         </Disclosure>
