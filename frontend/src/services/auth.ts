@@ -6,22 +6,12 @@ import { useRouter } from 'next/navigation'
 import { api, ApiError } from './api-client'
 
 export interface AuthUser {
-  token: string
   email: string
   roles: string[]
 }
 
 // --- Jotai atom ---
 const authAtom = atom<AuthUser | null>(null)
-
-// --- Cookie helpers ---
-function setAuthCookie() {
-  document.cookie = 'has_auth=true; path=/; max-age=86400; SameSite=Lax'
-}
-
-function clearAuthCookie() {
-  document.cookie = 'has_auth=; path=/; max-age=0'
-}
 
 // --- Hook ---
 export function useAuth() {
@@ -35,15 +25,13 @@ export function useAuth() {
       const raw = localStorage.getItem('auth')
       if (raw) {
         const parsed: AuthUser = JSON.parse(raw)
-        if (parsed?.token) {
+        if (parsed?.email) {
           setUser(parsed)
-          setAuthCookie()
         }
       }
     } catch {
       // corrupt data – clear it
       localStorage.removeItem('auth')
-      clearAuthCookie()
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -51,16 +39,15 @@ export function useAuth() {
     async (email: string, password: string) => {
       const data = await api.post<AuthUser>('/Auth/login', { email, password })
       localStorage.setItem('auth', JSON.stringify(data))
-      setAuthCookie()
       setUser(data)
       router.push('/')
     },
     [setUser, router],
   )
 
-  const logout = useCallback(() => {
+  const logout = useCallback(async () => {
+    await fetch('/api/auth/logout', { method: 'POST' })
     localStorage.removeItem('auth')
-    clearAuthCookie()
     setUser(null)
     router.push('/login')
   }, [setUser, router])
