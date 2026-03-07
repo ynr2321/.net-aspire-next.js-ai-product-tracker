@@ -113,9 +113,21 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     // Wait until postgres db container is running before auto migration -- TODO clean this up consider better waiting system / retry system
-    await Task.Delay(millisecondsDelay: 10_000);
-    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    await db.Database.MigrateAsync();
+    for (int i = 0; i < 3; i++)
+    {
+        try
+        {
+            await Task.Delay(millisecondsDelay: 8_000);
+            var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            await db.Database.MigrateAsync();
+
+            break;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error applying migrations: {ex.Message} \n Full exception: {ex}");
+        }
+    }
 
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
     string[] roles = ["Admin", "User"];
