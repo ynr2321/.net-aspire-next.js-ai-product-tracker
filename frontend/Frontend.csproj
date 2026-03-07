@@ -13,9 +13,10 @@
 
   <!-- Include all files for visibility in Solution Explorer, excluding heavy/generated folders -->
   <ItemGroup>
-    <None Include="**\*"
-          Exclude="node_modules\**;.next\**;bin\**;obj\**"
-          LinkBase="" />
+    <None Include="**\*" Exclude="node_modules\**;.next\**;bin\**;obj\**" LinkBase="" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="src\app\%28main%29\dashboard\" />
   </ItemGroup>
 
 </Project>
