@@ -22,6 +22,11 @@ public class AuthService : IAuthService
 
         if (existingUser is not null) return AuthResult.Conflict("A user with this email already exists.");
 
+        if (_userManager.Users.Count() > 99)
+        {
+            return AuthResult.Conflict("User limit reached - We're being stingy atm so cannot register more than 100 users.");
+        }
+
         // create new user and add role
         var user = new ApplicationUser
         {
