@@ -17,13 +17,13 @@ var postgresPassword = builder.AddParameter("postgres-password", secret: true);
 
 // Add PostgreSQL database container resource with a database named "aspireapp" and configure a db client with pg admin
 var postgres = builder.AddPostgres("postgres-server-container")
-    .WithPassword(postgresPassword)
-    .WithVolume("postgres-data", "/var/lib/postgresql/data");
+    .WithPassword(postgresPassword);
 
-// Only expose host ports and pgAdmin during local development
+// Only need to config ports, db client and volume in development
 if (builder.Environment.IsDevelopment())
 {
     postgres
+        .WithVolume("postgres-data", "/var/lib/postgresql/data")
         .WithHostPort(5432)
         .WithPgAdmin(pgBuilder =>
         {
