@@ -1,0 +1,66 @@
+name: Build & Deploy .NET Aspire
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch: # Allows manual trigger from GitHub Actions UI
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore backend/AspireApp/AspireApp.AppHost/AspireApp.AppHost.csproj
+
+      - name: Build
+        run: dotnet build backend/AspireApp/AspireApp.AppHost/AspireApp.AppHost.csproj --no-restore
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    environment: production
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      # Azure CLI login using service principal credentials
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Install Azure Developer CLI
+        uses: azure/setup-azd@v1
+
+      # azd has its own auth layer separate from Azure CLI
+      - name: Authenticate azd
+        run: |
+          azd auth login \
+            --client-id "${{ fromJson(secrets.AZURE_CREDENTIALS).clientId }}" \
+            --client-secret "${{ fromJson(secrets.AZURE_CREDENTIALS).clientSecret }}" \
+            --tenant-id "${{ fromJson(secrets.AZURE_CREDENTIALS).tenantId }}"
+
+      # Provisions any missing infra then builds and deploys all services
+      - name: Deploy with azd
+        working-directory: backend/AspireApp/AspireApp.AppHost
+        env:
+          AZURE_ENV_NAME: ${{ vars.AZURE_ENV_NAME }}
+          AZURE_LOCATION: ${{ vars.AZURE_LOCATION }}
+          AZURE_SUBSCRIPTION_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).subscriptionId }}
+        run: azd up --no-prompt
