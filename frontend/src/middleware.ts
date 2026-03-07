@@ -18,10 +18,11 @@ export function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // Check for the auth cookie flag
-  const hasAuth = request.cookies.get('has_auth')?.value
+  // Check for the httpOnly auth token cookie
+  const authToken = request.cookies.get('auth_token')?.value
+  console.log('auth token retrieved by middleware:', !!authToken)
 
-  if (!hasAuth) {
+  if (!authToken) {
     const loginUrl = new URL('/login', request.url)
     return NextResponse.redirect(loginUrl)
   }
