@@ -36,7 +36,8 @@ var database = postgres.AddDatabase("aspireapp");
 // add api service resource
 var apiService = builder.AddProject<AspireApp_ApiService>("apiservice")
     .WithReference(database)
-    .WithEnvironment("Jwt__Key", jwtKey);
+    .WithEnvironment("Jwt__Key", jwtKey)
+    .WaitFor(postgres);
 
 // Add Next.js app resource
 builder.AddJavaScriptApp("frontend", "../../../frontend", "dev")

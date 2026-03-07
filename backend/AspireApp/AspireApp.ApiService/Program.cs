@@ -117,15 +117,15 @@ using (var scope = app.Services.CreateScope())
     {
         try
         {
-            await Task.Delay(millisecondsDelay: 8_000);
-            var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            ApplicationDbContext db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
             await db.Database.MigrateAsync();
 
             break;
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error applying migrations: {ex.Message} \n Full exception: {ex}");
+            Console.WriteLine($"Error applying migrations: {ex.Message} \n Full exception: {ex} \n\n waiting before attempting again...");
+            await Task.Delay(millisecondsDelay: 8_000);
         }
     }
 
