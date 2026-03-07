@@ -120,6 +120,7 @@ using (var scope = app.Services.CreateScope())
             ApplicationDbContext db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
             await db.Database.MigrateAsync();
 
+            Console.WriteLine($"db.Database.MigrateAsync was succesful");
             break;
         }
         catch (Exception ex)
