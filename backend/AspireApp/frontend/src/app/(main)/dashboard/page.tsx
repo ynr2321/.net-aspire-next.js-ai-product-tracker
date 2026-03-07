@@ -6,6 +6,8 @@ import { ErrorFallback } from '@/components/ui/error-fallback'
 import { endpoints } from '@/services/api-endpoints'
 import { api } from '@/services/api-client'
 
+// Prevent static prerendering — this page requires a live API call
+export const dynamic = 'force-dynamic'
 
 export default async function DashboardPage() {
 
@@ -18,4 +20,4 @@ export default async function DashboardPage() {
       </Suspense>
     </ErrorBoundary>
   )
-} 
+}
