@@ -52,25 +52,35 @@ jobs:
             --client-secret "${{ fromJson(secrets.AZURE_CREDENTIALS).clientSecret }}" \
             --tenant-id "${{ fromJson(secrets.AZURE_CREDENTIALS).tenantId }}"
 
-      # set azd environment variables before running azd up
+      # Create the environment context
+      - name: Initialize azd Environment
+        working-directory: backend/AspireApp/AspireApp.AppHost
+        run: |
+          azd env new "${{ vars.AZURE_ENV_NAME }}" || azd env select "${{ vars.AZURE_ENV_NAME }}"
+        env:
+          AZURE_SUBSCRIPTION_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).subscriptionId }}
+          AZURE_LOCATION: ${{ vars.AZURE_LOCATION }}
+
+      # Set environment variables
       - name: Set azd environment values
         working-directory: backend/AspireApp/AspireApp.AppHost
+        shell: bash
         run: |
           azd env set AZURE_LOCATION "${{ vars.AZURE_LOCATION }}"
           azd env set AZURE_SUBSCRIPTION_ID "${{ fromJson(secrets.AZURE_CREDENTIALS).subscriptionId }}"
+          azd config set alpha.aspire on # Ensure Aspire support is toggled if needed
           azd env config set infra.parameters.location "${{ vars.AZURE_LOCATION }}"
           azd env config set infra.parameters.jwt_key "${{ secrets.AZURE_JWT_KEY }}"
           azd env config set infra.parameters.postgres_user "${{ secrets.AZURE_POSTGRES_USER }}"
           azd env config set infra.parameters.postgres_password "${{ secrets.AZURE_POSTGRES_PASSWORD }}"
+        env:
+          AZURE_ENV_NAME: ${{ vars.AZURE_ENV_NAME }}
 
-      # azd up - Provisions any missing infra then builds and deploys all services
+      # azd up - provision and deploy 
       - name: Deploy with azd
         working-directory: backend/AspireApp/AspireApp.AppHost
+        run: azd up --no-prompt
         env:
           AZURE_ENV_NAME: ${{ vars.AZURE_ENV_NAME }}
           AZURE_LOCATION: ${{ vars.AZURE_LOCATION }}
           AZURE_SUBSCRIPTION_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).subscriptionId }}
-          AZURE_JWT_KEY: ${{ secrets.AZURE_JWT_KEY }}
-          AZURE_POSTGRES_USER: ${{ secrets.AZURE_POSTGRES_USER }}
-          AZURE_POSTGRES_PASSWORD: ${{ secrets.AZURE_POSTGRES_PASSWORD }}
-        run: azd up --no-prompt
