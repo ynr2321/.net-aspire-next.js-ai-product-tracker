@@ -29,9 +29,7 @@ WIP distributed app built with **.NET Aspire**:
    - In the Aspire Dashboard, select the **Postgres container resource**.
    - Copy the connection string.
    - Paste it into the `DesignTimeDbContextFactory` connection configuration.
-   - ```bash 
-      dotnet ef database update --project AspireApp.ApiService
-   ```
+   - `dotnet ef database update --project AspireApp.ApiService`
 
 
 6. Start the API service from the Aspire Dashboard.
