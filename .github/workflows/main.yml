@@ -46,7 +46,7 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Install Azure Developer CLI
-        uses: azure/setup-azd@v1
+        uses: azure/setup-azd@v2
 
       # azd has its own auth layer separate from Azure CLI
       - name: Authenticate azd
