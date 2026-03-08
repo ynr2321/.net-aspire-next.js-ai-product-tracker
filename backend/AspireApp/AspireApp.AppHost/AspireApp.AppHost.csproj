@@ -12,6 +12,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\AspireApp.ApiService\AspireApp.ApiService.csproj" />
+		<ProjectReference Include="..\AspireApp.AzureCostMonitoringService\AspireApp.AzureCostMonitoringService.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

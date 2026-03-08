@@ -4,7 +4,6 @@
  * The API service is defined in the Projects.AspireApp_ApiService project, while the Next.js app is located in the ../../../frontend directory.
  * The frontend app is configured to run in development mode and is set up to use HTTP endpoints, with references to the API service for communication.
  */
-using Microsoft.Extensions.Hosting;
 using Projects;
 
 var builder = DistributedApplication.CreateBuilder(args);
@@ -16,12 +15,15 @@ var jwtKey = builder.AddParameter("jwt-key", secret: true);
 var postgresPassword = builder.AddParameter("postgres-password", secret: true);
 var postgresUser = builder.AddParameter("postgres-user", secret: true);
 
+// ADDING SERVICE RESOURCES --------------------------------------------------------------------------- 
+
+// Add Azure resource cost monitoring worker service
+builder.AddProject<AspireApp_AzureCostMonitoringService>("azure-cost-monitoring-worker");
+
 // Add PostgreSQL database container resource with a database named "aspireapp" and configure a db client with pg admin
-
-
-// development config
 if (builder.Configuration.GetSection("IsDevelopment").Value == "True")
 {
+    // development config
     var localPostgres = builder.AddPostgres("postgres-server-container")
         .WithPassword(postgresPassword);
 
