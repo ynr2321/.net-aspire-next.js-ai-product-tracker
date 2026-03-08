@@ -52,7 +52,18 @@ jobs:
             --client-secret "${{ fromJson(secrets.AZURE_CREDENTIALS).clientSecret }}" \
             --tenant-id "${{ fromJson(secrets.AZURE_CREDENTIALS).tenantId }}"
 
-      # Provisions any missing infra then builds and deploys all services
+      # set azd environment variables before running azd up
+      - name: Set azd environment values
+        working-directory: backend/AspireApp/AspireApp.AppHost
+        run: |
+          azd env set AZURE_LOCATION "${{ vars.AZURE_LOCATION }}"
+          azd env set AZURE_SUBSCRIPTION_ID "${{ fromJson(secrets.AZURE_CREDENTIALS).subscriptionId }}"
+          azd env config set infra.parameters.location "${{ vars.AZURE_LOCATION }}"
+          azd env config set infra.parameters.jwt_key "${{ secrets.AZURE_JWT_KEY }}"
+          azd env config set infra.parameters.postgres_user "${{ secrets.AZURE_POSTGRES_USER }}"
+          azd env config set infra.parameters.postgres_password "${{ secrets.AZURE_POSTGRES_PASSWORD }}"
+
+      # azd up - Provisions any missing infra then builds and deploys all services
       - name: Deploy with azd
         working-directory: backend/AspireApp/AspireApp.AppHost
         env:
