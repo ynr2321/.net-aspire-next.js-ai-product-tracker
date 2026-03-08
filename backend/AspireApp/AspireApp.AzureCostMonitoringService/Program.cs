@@ -1,14 +1,18 @@
-namespace AspireApp.AzureCostMonitoringService
-{
-    public class Program
-    {
-        public static void Main(string[] args)
-        {
-            var builder = Host.CreateApplicationBuilder(args);
-            builder.Services.AddHostedService<Worker>();
+using Azure.Identity;
+using Azure.ResourceManager;
 
-            var host = builder.Build();
-            host.Run();
-        }
+namespace AspireApp.AzureCostMonitoringService;
+
+public class Program
+{
+    public static void Main(string[] args)
+    {
+        var builder = Host.CreateApplicationBuilder(args);
+
+        builder.Services.AddSingleton(new ArmClient(new DefaultAzureCredential()));
+        builder.Services.AddHostedService<Worker>();
+
+        var host = builder.Build();
+        host.Run();
     }
 }
