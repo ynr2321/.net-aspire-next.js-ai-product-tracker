@@ -1,0 +1,29 @@
+name: Build & Test Application
+
+# pipeline should trigger when PR targets main and new commits are pushed to it or it is changed from draft to open
+on:
+  workflow_dispatch: # can manually trigger
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review] 
+
+jobs:
+  ci-build:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore
+        run: dotnet restore backend/AspireApp/AspireApp.AppHost/AspireApp.AppHost.csproj
+
+      - name: Build
+        run: dotnet build backend/AspireApp/AspireApp.AppHost/AspireApp.AppHost.csproj --no-restore
+
+        # todo add dotnet test once tests implemented
