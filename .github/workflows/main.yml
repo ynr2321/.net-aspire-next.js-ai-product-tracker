@@ -1,10 +1,6 @@
 name: Build & Deploy .NET Aspire
 
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
   workflow_dispatch: # Allows manual trigger from GitHub Actions UI
 
 jobs:
@@ -49,7 +45,7 @@ jobs:
         uses: azure/setup-azd@v2
 
       # azd has its own auth layer separate from Azure CLI
-      - name: Authenticate azd
+      - name: Authenticate Azure Developer CLI (azd)
         run: |
           azd auth login \
             --client-id "${{ fromJson(secrets.AZURE_CREDENTIALS).clientId }}" \
@@ -63,4 +59,7 @@ jobs:
           AZURE_ENV_NAME: ${{ vars.AZURE_ENV_NAME }}
           AZURE_LOCATION: ${{ vars.AZURE_LOCATION }}
           AZURE_SUBSCRIPTION_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).subscriptionId }}
+          AZURE_JWT_KEY: ${{ secrets.AZURE_JWT_KEY }}
+          AZURE_POSTGRES_USER: ${{ secrets.AZURE_POSTGRES_USER }}
+          AZURE_POSTGRES_PASSWORD: ${{ secrets.AZURE_POSTGRES_PASSWORD }}
         run: azd up --no-prompt
