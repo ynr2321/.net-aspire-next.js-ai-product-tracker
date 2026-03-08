@@ -8,7 +8,7 @@ on:
     types: [opened, synchronize, reopened, ready_for_review] 
 
 jobs:
-  build:
+  ci-build:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
 
