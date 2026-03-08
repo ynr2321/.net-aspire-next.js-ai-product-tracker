@@ -1,31 +1,32 @@
 name: Build & Deploy .NET Aspire
 
 on:
-  workflow_dispatch: # Allows manual trigger from GitHub Actions UI
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
-
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
-
-      - name: Restore dependencies
+      - name: Restore
         run: dotnet restore backend/AspireApp/AspireApp.AppHost/AspireApp.AppHost.csproj
-
       - name: Build
         run: dotnet build backend/AspireApp/AspireApp.AppHost/AspireApp.AppHost.csproj --no-restore
 
   deploy:
     runs-on: ubuntu-latest
     needs: build
-    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    if: github.ref == 'refs/heads/main'
     environment: production
+    # Set these at the job level so they are available to EVERY step automatically
+    env:
+      AZURE_ENV_NAME: ${{ secrets.AZURE_ENV_NAME }}
+      AZURE_LOCATION: ${{ secrets.AZURE_LOCATION }}
+      AZURE_SUBSCRIPTION_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).subscriptionId }}
 
     steps:
       - uses: actions/checkout@v4
@@ -35,7 +36,6 @@ jobs:
         with:
           dotnet-version: '10.0.x'
 
-      # Azure CLI login using service principal credentials
       - name: Azure Login
         uses: azure/login@v2
         with:
@@ -44,43 +44,36 @@ jobs:
       - name: Install Azure Developer CLI
         uses: azure/setup-azd@v2
 
-      # azd has its own auth layer separate from Azure CLI
-      - name: Authenticate Azure Developer CLI (azd)
+      - name: Authenticate azd
         run: |
           azd auth login \
             --client-id "${{ fromJson(secrets.AZURE_CREDENTIALS).clientId }}" \
             --client-secret "${{ fromJson(secrets.AZURE_CREDENTIALS).clientSecret }}" \
             --tenant-id "${{ fromJson(secrets.AZURE_CREDENTIALS).tenantId }}"
-
-      # Create the environment context
+      # create azd env
       - name: Initialize azd Environment
         working-directory: backend/AspireApp/AspireApp.AppHost
         run: |
-          azd env new "${{ vars.AZURE_ENV_NAME }}" || azd env select "${{ vars.AZURE_ENV_NAME }}"
-        env:
-          AZURE_SUBSCRIPTION_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).subscriptionId }}
-          AZURE_LOCATION: ${{ vars.AZURE_LOCATION }}
+          # If env doesn't exist, create it. If it does, select it.
+          azd env new "$AZURE_ENV_NAME" || azd env select "$AZURE_ENV_NAME"
 
-      # Set environment variables
+      # set env values for use in deployment steps
       - name: Set azd environment values
         working-directory: backend/AspireApp/AspireApp.AppHost
         shell: bash
         run: |
-          azd env set AZURE_LOCATION "${{ vars.AZURE_LOCATION }}"
-          azd env set AZURE_SUBSCRIPTION_ID "${{ fromJson(secrets.AZURE_CREDENTIALS).subscriptionId }}"
-          azd config set alpha.aspire on # Ensure Aspire support is toggled if needed
-          azd env config set infra.parameters.location "${{ vars.AZURE_LOCATION }}"
+          azd env set AZURE_LOCATION "$AZURE_LOCATION"
+          azd env set AZURE_SUBSCRIPTION_ID "$AZURE_SUBSCRIPTION_ID"
+          azd config set alpha.aspire on
+          
+          # Use quotes around secret injections to handle special characters
+          azd env config set infra.parameters.location "$AZURE_LOCATION"
           azd env config set infra.parameters.jwt_key "${{ secrets.AZURE_JWT_KEY }}"
           azd env config set infra.parameters.postgres_user "${{ secrets.AZURE_POSTGRES_USER }}"
           azd env config set infra.parameters.postgres_password "${{ secrets.AZURE_POSTGRES_PASSWORD }}"
-        env:
-          AZURE_ENV_NAME: ${{ vars.AZURE_ENV_NAME }}
 
-      # azd up - provision and deploy 
+      # use azd up to provision and deploy to azure
       - name: Deploy with azd
         working-directory: backend/AspireApp/AspireApp.AppHost
+        # --no-prompt is critical for CI/CD
         run: azd up --no-prompt
-        env:
-          AZURE_ENV_NAME: ${{ vars.AZURE_ENV_NAME }}
-          AZURE_LOCATION: ${{ vars.AZURE_LOCATION }}
-          AZURE_SUBSCRIPTION_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).subscriptionId }}
