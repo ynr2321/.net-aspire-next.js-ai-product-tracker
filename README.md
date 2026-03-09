@@ -1,4 +1,8 @@
 WIP distributed app built with **.NET Aspire**:
+
+currently hosted on azure at:
+https://frontend.delightfulsmoke-1ef0581f.uksouth.azurecontainerapps.io/
+
 - ASP.NET Core Web API (.NET 10)
 - Next.js frontend
 - Docker orchestration
