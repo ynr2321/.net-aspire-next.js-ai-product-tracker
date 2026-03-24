@@ -2,6 +2,7 @@ WIP distributed app built with **.NET Aspire**:
 
 currently hosted on azure at:
 https://frontend.delightfulsmoke-1ef0581f.uksouth.azurecontainerapps.io/
+
 (You can use a fake email to register and get past the login page as long as it is in format fake@email.com)
 
 - ASP.NET Core Web API (.NET 10)
