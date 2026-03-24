@@ -27,4 +27,4 @@ jobs:
         run: dotnet build backend/AspireApp/AspireApp.AppHost/AspireApp.AppHost.csproj --no-restore
 
       - name: Test
-        run: dotnet test backend/AspireApp/AspireApp.ApiService.Tests/AspireApp.ApiService.Tests.csproj --no-build --verbosity normal
+        run: dotnet test backend/AspireApp/AspireApp.ApiService.Tests/AspireApp.ApiService.Tests.csproj --verbosity normal --logger "console;verbosity=detailed"
