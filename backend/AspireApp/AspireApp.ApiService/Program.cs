@@ -34,9 +34,7 @@ builder.Services.AddIdentityCore<ApplicationUser>(options =>
 
 // Add JWT Authentication
 // JWT signing key is injected by Aspire AppHost via the "jwt-key" secret parameter (Jwt__Key env var).
-var jwtSettings = builder.Configuration.GetSection("Jwt");
-var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]!);
-
+// Config is read inside the options delegate so values added by WebApplicationFactory (tests) are visible.
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -44,6 +42,9 @@ builder.Services.AddAuthentication(options =>
 })
 .AddJwtBearer(options =>
 {
+    var jwtSettings = builder.Configuration.GetSection("Jwt");
+    var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]!);
+
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = true,
@@ -154,3 +155,6 @@ app.MapControllers();
 app.MapDefaultEndpoints();
 
 app.Run();
+
+// Make the implicit Program class public so WebApplicationFactory<Program> can reference it from the test project.
+public partial class Program { }

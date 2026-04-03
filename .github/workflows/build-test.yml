@@ -5,7 +5,7 @@ on:
   workflow_dispatch: # can manually trigger
   pull_request:
     branches: [main]
-    types: [opened, synchronize, reopened, ready_for_review] 
+    types: [opened, synchronize, reopened, ready_for_review]
 
 jobs:
   ci-build:
@@ -26,4 +26,5 @@ jobs:
       - name: Build
         run: dotnet build backend/AspireApp/AspireApp.AppHost/AspireApp.AppHost.csproj --no-restore
 
-        # todo add dotnet test once tests implemented
+      - name: Test
+        run: dotnet test backend/AspireApp/AspireApp.ApiService.Tests/AspireApp.ApiService.Tests.csproj --verbosity quiet --logger "console;verbosity=normal"
