@@ -1,18 +1,22 @@
 using Azure;
+using Azure.Core;
 using Azure.ResourceManager;
 using Azure.ResourceManager.AppContainers;
 using Azure.ResourceManager.PostgreSql.FlexibleServers;
 
-namespace AspireApp.AzureCostMonitoringService.Services;
+namespace AspireApp.AzureCostMonitoringService.Services.ResourceShutdown;
 
+/// <summary>
+/// Service whose responsibiliy is to shutdown / stop azure resources
+/// </summary>
 public class ResourceShutdownService(ArmClient armClient, ILogger<ResourceShutdownService> logger)
     : IResourceShutdownService
 {
     public async Task StopContainerAppAsync(
         string subscriptionId, string resourceGroup, string appName, CancellationToken cancellationToken)
     {
-        var resourceId = ContainerAppResource.CreateResourceIdentifier(subscriptionId, resourceGroup, appName);
-        var containerApp = armClient.GetContainerAppResource(resourceId);
+        ResourceIdentifier resourceId = ContainerAppResource.CreateResourceIdentifier(subscriptionId, resourceGroup, appName);
+        ContainerAppResource containerApp = armClient.GetContainerAppResource(resourceId);
 
         try
         {
@@ -33,8 +37,8 @@ public class ResourceShutdownService(ArmClient armClient, ILogger<ResourceShutdo
     public async Task StopPostgresServerAsync(
         string subscriptionId, string resourceGroup, string serverName, CancellationToken cancellationToken)
     {
-        var resourceId = PostgreSqlFlexibleServerResource.CreateResourceIdentifier(subscriptionId, resourceGroup, serverName);
-        var server = armClient.GetPostgreSqlFlexibleServerResource(resourceId);
+        ResourceIdentifier resourceId = PostgreSqlFlexibleServerResource.CreateResourceIdentifier(subscriptionId, resourceGroup, serverName);
+        PostgreSqlFlexibleServerResource server = armClient.GetPostgreSqlFlexibleServerResource(resourceId);
 
         try
         {

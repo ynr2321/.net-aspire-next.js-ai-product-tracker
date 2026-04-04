@@ -1,7 +1,8 @@
+using Azure;
 using Azure.Monitor.Query;
 using Azure.Monitor.Query.Models;
 
-namespace AspireApp.AzureCostMonitoringService.Services;
+namespace AspireApp.AzureCostMonitoringService.Services.Metrics;
 
 public class MetricsQueryService(MetricsQueryClient metricsClient, ILogger<MetricsQueryService> logger)
     : IMetricsQueryService
@@ -10,7 +11,7 @@ public class MetricsQueryService(MetricsQueryClient metricsClient, ILogger<Metri
     {
         // Azure Container Apps expose a "Requests" metric under the Microsoft.App/containerApps provider.
         // We query with Total aggregation to get the sum of requests per time-grain bucket.
-        var response = await metricsClient.QueryResourceAsync(
+        Response<MetricsQueryResult> response = await metricsClient.QueryResourceAsync(
             resourceId,
             ["Requests"],
             new MetricsQueryOptions
@@ -21,7 +22,7 @@ public class MetricsQueryService(MetricsQueryClient metricsClient, ILogger<Metri
             },
             cancellationToken);
 
-        var metric = response.Value.Metrics.FirstOrDefault();
+        MetricResult? metric = response.Value.Metrics.FirstOrDefault();
         if (metric is null)
         {
             logger.LogWarning("No 'Requests' metric returned for resource {ResourceId}", resourceId);
@@ -29,9 +30,9 @@ public class MetricsQueryService(MetricsQueryClient metricsClient, ILogger<Metri
         }
 
         double total = 0;
-        foreach (var timeSeries in metric.TimeSeries)
+        foreach (MetricTimeSeriesElement? timeSeries in metric.TimeSeries)
         {
-            foreach (var value in timeSeries.Values)
+            foreach (MetricValue? value in timeSeries.Values)
             {
                 total += value.Total ?? 0;
             }

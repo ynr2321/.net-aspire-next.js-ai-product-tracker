@@ -1,4 +1,4 @@
-namespace AspireApp.AzureCostMonitoringService.Services;
+namespace AspireApp.AzureCostMonitoringService.Services.ResourceShutdown;
 
 public interface IResourceShutdownService
 {

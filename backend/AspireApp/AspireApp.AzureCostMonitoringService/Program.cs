@@ -3,13 +3,20 @@ using Azure.Monitor.Query;
 using Azure.ResourceManager;
 using AspireApp.AzureCostMonitoringService;
 using AspireApp.AzureCostMonitoringService.Models;
-using AspireApp.AzureCostMonitoringService.Services;
+using AspireApp.AzureCostMonitoringService.Services.Metrics;
+using AspireApp.AzureCostMonitoringService.Services.ResourceShutdown;
 
+/* -------------------------------------------------------------------------------------
+ * This worker service will monitor azure resources using a MetricsQueryService,
+ * and dependign on rules set in configuration, will STOP resources that break rules
+ * using ResourceShutDownService
+ * -------------------------------------------------------------------------------------
+ */
 public class Program
 {
     public static void Main(string[] args)
     {
-        var builder = Host.CreateApplicationBuilder(args);
+        HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
 
         // Aspire service defaults: OpenTelemetry, health checks, resilience
         builder.AddServiceDefaults();
@@ -21,7 +28,7 @@ public class Program
         // Azure clients — DefaultAzureCredential supports managed identity in Azure Container Apps
         // and falls back to Azure CLI / Visual Studio credentials for local development.
         // No secrets need to be stored; managed identity is sufficient when deployed.
-        var credential = new DefaultAzureCredential();
+        DefaultAzureCredential credential = new DefaultAzureCredential();
         builder.Services.AddSingleton(new ArmClient(credential));
         builder.Services.AddSingleton(new MetricsQueryClient(credential));
 
@@ -32,7 +39,7 @@ public class Program
         // Worker
         builder.Services.AddHostedService<CostMonitoringWorker>();
 
-        var host = builder.Build();
+        IHost host = builder.Build();
         host.Run();
     }
 }

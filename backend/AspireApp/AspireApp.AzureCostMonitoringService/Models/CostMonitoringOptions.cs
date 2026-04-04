@@ -1,3 +1,5 @@
+using AspireApp.AzureCostMonitoringService.Enums;
+
 namespace AspireApp.AzureCostMonitoringService.Models;
 
 public class CostMonitoringOptions
@@ -46,11 +48,4 @@ public class MonitoringRule
 
     /// <summary>Which resources to stop when the threshold is breached.</summary>
     public List<ResourceTarget> ShutdownTargets { get; set; } = [];
-}
-
-public enum ResourceTarget
-{
-    Frontend,
-    Backend,
-    Database
 }

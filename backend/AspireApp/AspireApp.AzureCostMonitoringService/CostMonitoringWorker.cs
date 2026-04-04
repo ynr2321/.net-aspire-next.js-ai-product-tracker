@@ -1,6 +1,9 @@
+using AspireApp.AzureCostMonitoringService.Enums;
 using AspireApp.AzureCostMonitoringService.Models;
-using AspireApp.AzureCostMonitoringService.Services;
+using AspireApp.AzureCostMonitoringService.Services.Metrics;
+using AspireApp.AzureCostMonitoringService.Services.ResourceShutdown;
 using Azure.ResourceManager;
+using Azure.ResourceManager.Resources;
 using Microsoft.Extensions.Options;
 
 namespace AspireApp.AzureCostMonitoringService;
@@ -15,11 +18,13 @@ public class CostMonitoringWorker(
     private readonly CostMonitoringOptions _options = options.Value;
     private string? _subscriptionId;
 
+    // Main loop ----------------------------------------------------------------------
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        logger.LogInformation("Cost monitoring worker starting. Polling every {Interval}s",
-            _options.PollingIntervalSeconds);
+        // log start, displaying polling interval
+        logger.LogInformation("Cost monitoring worker starting. Polling every {Interval}s",_options.PollingIntervalSeconds);
 
+        // get azure subscription ID and validate
         _subscriptionId = await ResolveSubscriptionIdAsync(stoppingToken);
         if (string.IsNullOrEmpty(_subscriptionId))
         {
@@ -29,11 +34,12 @@ public class CostMonitoringWorker(
             return;
         }
 
+        // log which subscription and resource group are about to be monitored
         logger.LogInformation("Monitoring subscription {SubscriptionId}, resource group {ResourceGroup}",
             _subscriptionId, _options.ResourceGroup);
 
-        var interval = TimeSpan.FromSeconds(_options.PollingIntervalSeconds);
-
+        // main monitoring loop - monitor resources and stop rule breaking services (rules according to config)
+        TimeSpan interval = TimeSpan.FromSeconds(_options.PollingIntervalSeconds);
         while (!stoppingToken.IsCancellationRequested)
         {
             try
@@ -55,16 +61,17 @@ public class CostMonitoringWorker(
         logger.LogInformation("Cost monitoring worker stopping");
     }
 
+    // Private helpers ----------------------------------------------------------------------
     private async Task EvaluateAllRulesAsync(CancellationToken ct)
     {
-        var enabledRules = _options.Rules.Where(r => r.Enabled).ToList();
+        List<MonitoringRule> enabledRules = _options.Rules.Where(r => r.Enabled).ToList();
         if (enabledRules.Count == 0)
         {
             logger.LogDebug("No enabled monitoring rules configured");
             return;
         }
 
-        foreach (var rule in enabledRules)
+        foreach (MonitoringRule rule in enabledRules)
         {
             try
             {
@@ -90,12 +97,12 @@ public class CostMonitoringWorker(
             return;
         }
 
-        var window = TimeSpan.FromMinutes(rule.WindowMinutes);
+        TimeSpan window = TimeSpan.FromMinutes(rule.WindowMinutes);
         double totalRequests = 0;
 
-        foreach (var target in rule.MonitoredResources)
+        foreach (ResourceTarget target in rule.MonitoredResources)
         {
-            var appName = ResolveContainerAppName(target);
+            string? appName = ResolveContainerAppName(target);
             if (appName is null)
             {
                 logger.LogWarning("Rule {RuleName}: target {Target} has no associated container app (metrics N/A)",
@@ -103,10 +110,10 @@ public class CostMonitoringWorker(
                 continue;
             }
 
-            var resourceId = $"/subscriptions/{_subscriptionId}/resourceGroups/{_options.ResourceGroup}" +
+            string resourceId = $"/subscriptions/{_subscriptionId}/resourceGroups/{_options.ResourceGroup}" +
                              $"/providers/Microsoft.App/containerApps/{appName}";
 
-            var count = await metricsService.GetRequestCountAsync(resourceId, window, ct);
+            double count = await metricsService.GetRequestCountAsync(resourceId, window, ct);
             logger.LogDebug("Rule {RuleName}: {Target} ({AppName}) = {Count} requests in {Window}min",
                 rule.Name, target, appName, count, rule.WindowMinutes);
 
@@ -134,7 +141,7 @@ public class CostMonitoringWorker(
 
     private async Task ExecuteShutdownAsync(MonitoringRule rule, CancellationToken ct)
     {
-        foreach (var target in rule.ShutdownTargets)
+        foreach (ResourceTarget target in rule.ShutdownTargets)
         {
             switch (target)
             {
@@ -166,8 +173,7 @@ public class CostMonitoringWorker(
 
     private async Task<string?> ResolveSubscriptionIdAsync(CancellationToken ct)
     {
-        if (!string.IsNullOrEmpty(_options.SubscriptionId))
-            return _options.SubscriptionId;
+        if (!string.IsNullOrEmpty(_options.SubscriptionId)) return _options.SubscriptionId;
 
         if (string.IsNullOrEmpty(_options.SubscriptionName))
         {
@@ -177,7 +183,7 @@ public class CostMonitoringWorker(
 
         logger.LogInformation("Resolving subscription by display name: '{Name}'", _options.SubscriptionName);
 
-        await foreach (var sub in armClient.GetSubscriptions().GetAllAsync(ct))
+        await foreach (SubscriptionResource sub in armClient.GetSubscriptions().GetAllAsync(ct))
         {
             if (string.Equals(sub.Data.DisplayName, _options.SubscriptionName, StringComparison.OrdinalIgnoreCase))
             {

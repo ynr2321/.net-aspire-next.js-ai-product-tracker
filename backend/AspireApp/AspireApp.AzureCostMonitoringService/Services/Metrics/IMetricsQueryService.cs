@@ -1,4 +1,4 @@
-namespace AspireApp.AzureCostMonitoringService.Services;
+namespace AspireApp.AzureCostMonitoringService.Services.Metrics;
 
 public interface IMetricsQueryService
 {
